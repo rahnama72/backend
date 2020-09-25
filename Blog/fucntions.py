@@ -21,3 +21,27 @@ def get_localdate(init=None):
 
 def get_localtime():
     return tz.localtime().time()
+
+
+def datetime_compare(date_1, time_1, date_2, time_2):
+    if date_1 > date_2:
+        return False, 'd'
+    elif date_1 == date_2 and time_1 > time_2:
+        return False, 't'
+    else:
+        return True, ''
+
+
+def is_datetime_pass(date, time):
+    date_now = get_localdate()
+    time_now = get_localtime()
+    r, s = datetime_compare(
+        date_1=date,
+        time_1=time,
+        date_2=date_now,
+        time_2=time_now,
+    )
+    if r is True:
+        return True
+    else:
+        return False
