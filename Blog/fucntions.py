@@ -1,5 +1,5 @@
 from django.utils.text import slugify
-
+from django.utils import timezone as tz
 
 def slug_generator(instance, index=1, new_slug=None):
     if new_slug is not None:
@@ -14,3 +14,10 @@ def slug_generator(instance, index=1, new_slug=None):
         return slug_generator(instance, index=index + 1, new_slug=new_slug)
     return slug
 
+
+def get_localdate(init=None):
+    return tz.localdate(init)
+
+
+def get_localtime():
+    return tz.localtime().time()
