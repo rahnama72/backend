@@ -1,4 +1,7 @@
 from django.db import models
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+
 from UserManager import models as UserMangerModels
 from mptt.models import MPTTModel, TreeForeignKey
 from Blog import fucntions as BlogFunctions
@@ -114,3 +117,29 @@ class Video(UserMangerModels.BasicModel):
         if not self.slug:
             self.slug = BlogFunctions.slug_generator(self)
         super(Video, self).save(*args, **kwargs)
+
+
+class PostComment(models.Model):
+    created_date = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
+    user = models.ForeignKey('User', null=True, blank=True, on_delete=models.SET_NULL,
+                             related_name='postcomments', verbose_name='کاربر')
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
+    object_id = models.CharField(max_length=50)
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    ip_address = models.GenericIPAddressField(editable=False, verbose_name='آی پی')
+    author_name = models.CharField(max_length=100, default='ناشناس', verbose_name='نام')
+    author_email = models.EmailField(blank=True, verbose_name='رایانامه')
+    status = models.IntegerField(max_length=20, choices=BlogVariables.COMMENT_STATUS_CHOICES,
+                                 default=BlogVariables.COMMENT_STATUS_CHOICES[0][0], verbose_name='وضعیت')
+
+    title = models.CharField(max_length=250, blank=False, verbose_name='عنوان')
+    content = models.TextField(null=True, blank=True, verbose_name='محتوی')
+
+    class Meta:
+        verbose_name_plural = 'دیدگاه ها'
+        verbose_name = 'دیدگاه'
+
+    def __str__(self):
+        return self.title
