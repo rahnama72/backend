@@ -78,3 +78,39 @@ class Post(UserMangerModels.BasicModel):
         if not self.slug:
             self.slug = BlogFunctions.slug_generator(self)
         super(Post, self).save(*args, **kwargs)
+
+
+class Video(UserMangerModels.BasicModel):
+    category = models.ForeignKey('Category', null=True, blank=True, on_delete=models.SET_NULL,
+                                 related_name='videos', verbose_name='دسته بندی')
+
+    title = models.CharField(max_length=250, blank=False, verbose_name='عنوان')
+    content = models.TextField(null=True, blank=True, verbose_name='متن')
+    file = models.FileField(upload_to='videos/', null=True, verbose_name="فایل")
+
+    publish_date = models.DateField(null=True, blank=True, verbose_name='تاریخ انتشار')
+    publish_time = models.TimeField(null=True, blank=True, verbose_name='زمان انتشار')
+    status = models.IntegerField(choices=BlogVariables.POST_STATUS_CHOICES, default=BlogVariables.POST_STATUS_CHOICES[2][0],
+                                 verbose_name='وضعیت')
+    is_allow_comments = models.BooleanField(default=True, verbose_name='آیا کامنت بپذیرد؟')
+    tags = models.CharField(max_length=250, null=True, blank=True, verbose_name='تگ ها')
+    slug = models.SlugField(unique=True, null=True, allow_unicode=True, verbose_name='آدرس اینترنتی(Slug)')
+
+    class Meta:
+        verbose_name_plural = 'ویدئو ها'
+        verbose_name = 'ویدئو'
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def is_publish(self):
+        if self.status == 3:
+            if BlogFunctions.is_datetime_pass(date=self.publish_date, time=self.publish_time) is True:
+                return True
+        return False
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = BlogFunctions.slug_generator(self)
+        super(Video, self).save(*args, **kwargs)
